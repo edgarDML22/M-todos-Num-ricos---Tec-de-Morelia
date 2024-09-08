@@ -20,9 +20,6 @@ def valor_cifras_significativas(numero, n):
     if numero == 0:
         return 0
     else:
-        # f"{numero:e}", te da el número en notación científica(String)
-        #.split() separa la cadena en una lista y en la segunda posición[1] queda el exponente del 10^x
-        # se convierte en un entero con int()
         factor = n - (int(f"{numero:e}".split('e')[1]) + 1)
         return round(numero, factor)
     
@@ -33,21 +30,25 @@ def calcular_error_relativo(valor_anterior, valor_actual):
     return (abs(1 - (valor_anterior / valor_actual)))*100
 
 def function_f(x):
-    return math.log(math.sin(x)) + math.exp(math.tan(x))
+    #return math.log(math.sin(x)) + math.exp(math.tan(x))
     #return 2*(math.exp(math.pow(x, 2))) - 5*x
-    #return math.exp(x) - 4*x
+    return math.exp(x) - 4*x
 
 def function_g(x):#probar lo de valor + function(f) avr si da lo mismo
-    return x + function_f(x)
+    #return x + function_f(x)
     #return 0.4*(math.exp(math.pow(x, 2)))
-    #return 0.25*(math.exp(x))
-    
-    #return (0.25*(math.exp(valor)))
+    return 0.25*(math.exp(x))
+
+def generar_matrix(numero_columnas): # debe ser un int >= 1
+    matrix = np.array([3])
+    if numero_columnas != 1:
+        new_column = np.array([3])
+        for i in range(numero_columnas - 1):
+            matrix = np.hstack((matrix, new_column))
+    return matrix
 
 def ejecutar_metodo_iterativo(x, n):
-    ##Devolver en una lista en 0: la matriz y en 1 el número de filas
-    ##Puedes obtener el número de filas con la función shape
-    matrix = np.array([-1, -1, -1, -1, -1])
+    matrix = generar_matrix(5)
     x_i = valor_cifras_significativas(x, n)
     F_xi = 0
     x_j = 0
@@ -75,8 +76,7 @@ def ejecutar_metodo_iterativo(x, n):
     return matrix
             
 def mostrar_valores_registrados(matrix, n):
-    ##Idea para romper el ciclo: cuando a y b sean 0 a la vez quiere decir que se llegó a una fila que no tiene elementos y que ahí se detenga la impresión
-    print("f(x) = e^x - 4x")#Que se imprima con LaTeX
+    print("f(x) = e^x - 4x")
     print("|   i  |\t|   x_i  |\t|  f(x_i) |\t| x_(i+1) |\t|   Error relativo  |")
     
     for i in range(matrix.shape[0]):
@@ -90,15 +90,14 @@ def mostrar_valores_registrados(matrix, n):
                     print(f"| {matrix[i][j]} |\t", end="")
             print("")    
 
-    last_row = matrix.shape[0] - 1
-    print(f"Valor de la raíz: {matrix[last_row][1]}")
+    #last_row = matrix.shape[0] - 1
+    print(f"Valor de la raíz: {matrix[matrix.shape[0] - 1][1]}")
 
 def main():
     print("Bienvenid@ al método de Punto Fijo")
     print("Valor recomnendado: x_i = 0")
-    #Validar que la función exista en este punto
-    x_i = -1
-    while True:
+    x_i = 0
+    while True: #Validar que la función exista en este punto
         try:
             x_i = ask_for_double("un valor para x_i")
             r = function_f(x_i)
@@ -107,8 +106,6 @@ def main():
         except Exception as e:
             print("El valor ingresado no es válido para el tipo de función, intente con otro valor")
             print(f"Valor anterior: {x_i}")
-    
-    
     while True:
         n = ask_for_int("el número de cifras significativas con el que desea trabajar")
         if n < 1:
@@ -120,8 +117,3 @@ def main():
    
 if __name__ == "__main__":
     main()
-
-# Potencias: math.pow(base, exponente)
-# Exponencial e^x: math.expo(exponente)
-
-
