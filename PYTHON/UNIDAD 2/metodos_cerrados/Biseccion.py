@@ -26,6 +26,8 @@ def calcular_error_tolerable(n):
     return 0.5*(math.pow(10, 2-n))
 
 def calcular_error_relativo(valor_anterior, valor_actual):
+    print(f"Valor anterior: {valor_anterior}")
+    print(f"Valor actual: {valor_actual}")
     return (abs(1 - (valor_anterior / valor_actual)))*100
 
 def function(x):
@@ -71,9 +73,9 @@ def ejecutar_metodo_iterativo(A, B, n):
         c = valor_cifras_significativas(calcular_valor_C(a, b), n)
         F_c = valor_cifras_significativas(function(c), n)
         #Calcular error relativo
-        if row != 0:
-            error_relativo = calcular_error_relativo(matrix[row-1][4], c)
-        #Meter los elementos al arreglo
+        if row > 0:
+            error_relativo = calcular_error_relativo(matrix[row][4], c)
+        #Meter los elementos al arreglo 
         new_row = np.array([a, b, F_a, F_b, c, F_c, error_relativo])
         matrix = np.vstack((matrix, new_row))
         #Método de bisección

@@ -71,8 +71,8 @@ def ejecutar_metodo_iterativo(A, B, n):
         c = valor_cifras_significativas(calcular_valor_C(a, b, F_a, F_b), n)
         F_c = valor_cifras_significativas(function(c), n)
         #Calcular error relativo
-        if row != 0:
-            error_relativo = calcular_error_relativo(matrix[row-1][4], c)
+        if row > 0:
+            error_relativo = calcular_error_relativo(matrix[row][4], c)
         #Meter los elementos al arreglo
         new_row = np.array([a, b, F_a, F_b, c, F_c, error_relativo])
         matrix = np.vstack((matrix, new_row))
