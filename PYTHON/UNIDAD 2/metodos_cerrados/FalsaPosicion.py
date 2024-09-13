@@ -94,16 +94,18 @@ def ejecutar_metodo_iterativo(A, B, n):
             
 def mostrar_valores_registrados(matrix, n):
     print("f(x) = e^(2*x) - 3")
-    print("|    a   |\t|    b   |\t|   f(a)  |\t|  f(b)  |\t|    c   |\t|   f(c)  |\t| Error relativo |")
+    print("|  i |\t    |     a     |    |     b     |    |    f(a)   |    |   f(b)    |    |     c     |    |   f(c)    |    | Error relativo |")
 
     for i in range(matrix.shape[0]):
-        if i != 0:
+        if i != 0: 
+            fila = []
+            print(f"| {i - 1:2} |", end="\t")
             for j in range(matrix.shape[1]):
-                if j == matrix.shape[1] - 1:
-                    print(f"| {round(matrix[i, j], n)} % |\t", end="")
-                else: 
-                    print(f"| {matrix[i, j]} |\t", end="")
-            print("")    
+                if j == matrix.shape[1] - 1:  
+                    fila.append(f"{valor_cifras_significativas(matrix[i, j], n)} %")
+                else:
+                    fila.append(f"{matrix[i, j]}")  
+            print("|".join(f"    | {valor:10}" for valor in fila) + "|")
     print(f"Valor de la raíz: {matrix[matrix.shape[0] - 1][4]}")
 
 def main():

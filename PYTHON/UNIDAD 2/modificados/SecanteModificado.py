@@ -31,10 +31,13 @@ def calcular_error_relativo(valor_anterior, valor_actual):
     return (abs(1 - (valor_anterior / valor_actual)))*100
 
 def function_f(x):
-    return math.pow(x, 2) - 7
+    return math.pow(x, 3) - 5*math.pow(x, 2) + 7*x - 3
 
-def calcular_valor_x_k(x_i, x_j, F_xi, F_xj):
-    return (x_j - F_xj*((x_j - x_i)/(F_xj - F_xi)))
+def derivative_function_f(x):
+    return 3*math.pow(x, 2) - 10*x + 7
+
+def calcular_valor_x_k(x_i, x_j, u_xi, u_xj):
+    return (x_j - u_xj*((x_j - x_i)/(u_xj - u_xi)))
 
 def generar_matrix(numero_columnas): # debe ser un int >= 1
     matrix = np.array([3])
@@ -46,29 +49,34 @@ def generar_matrix(numero_columnas): # debe ser un int >= 1
 
 
 def ejecutar_metodo_iterativo(x_0, x_1, n):
-    matrix = generar_matrix(7)
+    matrix = generar_matrix(11)
     flag = True
     x_i = valor_cifras_significativas(x_0, n)
     x_j = valor_cifras_significativas(x_1, n)
     F_xi = 0
     F_xj = 0
+    u_xi = 0
+    u_xj = 0
     row = 0
     error_relativo = -1;
     error_tolerable = calcular_error_tolerable(n)
     while True:
         F_xi = valor_cifras_significativas(function_f(x_i), n)
+        Fp_xi = valor_cifras_significativas(derivative_function_f(x_i), n)
         F_xj = valor_cifras_significativas(function_f(x_j), n)
-        #Calcular el valor de x_{i+2}
-        x_k = valor_cifras_significativas(calcular_valor_x_k(x_i, x_j, F_xi, F_xj), n)
+        Fp_xj = valor_cifras_significativas(derivative_function_f(x_j), n)
+        if F_xi != 0 and F_xj != 0:
+            u_xi = valor_cifras_significativas((F_xi / Fp_xi), n)
+            u_xj = valor_cifras_significativas((F_xj / Fp_xj), n)
+            #Calcular el valor de x_{i+2}
+            x_k = valor_cifras_significativas(calcular_valor_x_k(x_i, x_j, u_xi, u_xj), n)#Corregir
         #Calcular error relativo
         error_relativo = calcular_error_relativo(x_j, x_k)
         #Meter los elementos al arreglo
-        new_row = np.array([row, x_i, x_j, F_xi, F_xj, x_k, error_relativo])
+        new_row = np.array([row, x_i, x_j, F_xi, Fp_xi, F_xj, Fp_xj, u_xi, u_xj, x_k, error_relativo])
         matrix = np.vstack((matrix, new_row))
         #Método Punto Fijo
-        if F_xi == 0 or F_xj == 0:
-            break #Para romper el ciclo
-        elif (error_relativo < error_tolerable) and row > 1:
+        if (error_relativo < error_tolerable) and row > 1:
             break
         elif error_relativo > 300 and row > 10:
             flag = False
@@ -81,7 +89,7 @@ def ejecutar_metodo_iterativo(x_0, x_1, n):
             
 def mostrar_valores_registrados(matrix, n):
     print("f(x) = x^2 - 7")
-    print("    |    i      |    |    x_i    |    |  x_(i+1)  |    |  f(x_i)   |    | f(x_{i+1})|    |  x_(i+2)  |    | Error relativo |")
+    print("    |    i    |    |   x_i   |    | x_(i+1) |    |  f(x_i) |    | f'(x_i) |   |f(x_{i+1})|   |f'(x_{i+1})|  |  u_xi  |    | u_x_{i+1} |    |  x_(i+2)  |    | Error relativo |")
     for i in range(matrix.shape[0]):
         if i != 0:  
             fila = []
@@ -92,9 +100,9 @@ def mostrar_valores_registrados(matrix, n):
                     fila.append(f"{valor_cifras_significativas(matrix[i, j], n)} %")
                 else:
                     fila.append(f"{matrix[i][j]}")
-            print("|".join(f"    | {valor:10}" for valor in fila) + "|") 
+            print("|".join(f"    | {valor:9}" for valor in fila) + "|") 
              
-    print(f"Valor de la raíz: {matrix[matrix.shape[0] - 1][5]}")
+    print(f"Valor de la raíz: {matrix[matrix.shape[0] - 1][9]}")
 
 
 

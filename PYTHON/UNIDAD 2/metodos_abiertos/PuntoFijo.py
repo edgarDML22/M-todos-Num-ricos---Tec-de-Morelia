@@ -76,21 +76,21 @@ def ejecutar_metodo_iterativo(x, n):
             
 def mostrar_valores_registrados(matrix, n):
     print("f(x) = e^x - 4x")
-    print("|   i  |\t|   x_i  |\t|  f(x_i) |\t| x_(i+1) |\t|   Error relativo  |")
-    
+    print("    |    i      |    |    x_i    |    |  f(x_i)   |    |  x_(i+1)  |    | Error relativo |")
     for i in range(matrix.shape[0]):
-        if i != 0:
+        if i != 0:  
+            fila = []
             for j in range(matrix.shape[1]):
                 if j == 0:
-                    print(f"| {round(matrix[i][j], 0)} |\t", end="")
+                    fila.append(f"{int(matrix[i][j]):3}")
                 elif j == matrix.shape[1] - 1:
-                    print(f"| {round(matrix[i][j], n)} % |\t", end="")
-                else: 
-                    print(f"| {matrix[i][j]} |\t", end="")
-            print("")    
-
-    #last_row = matrix.shape[0] - 1
+                    fila.append(f"{valor_cifras_significativas(matrix[i, j], n)} %")
+                else:
+                    fila.append(f"{matrix[i][j]}")
+            print("|".join(f"    | {valor:10}" for valor in fila) + "|")
+    
     print(f"Valor de la raíz: {matrix[matrix.shape[0] - 1][1]}")
+
 
 def main():
     print("Bienvenid@ al método de Punto Fijo")
