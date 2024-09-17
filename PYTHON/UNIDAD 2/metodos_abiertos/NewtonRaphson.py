@@ -1,6 +1,7 @@
 import math
 from math import exp
 import numpy as np
+import sympy as sp
 
 
 def ask_for_double(nombre_valor):
@@ -21,8 +22,19 @@ def valor_cifras_significativas(numero, n):
     if numero == 0:
         return 0
     else:
-        factor = n - (int(f"{numero:e}".split('e')[1]) + 1)
-        return round(numero, factor)
+        # Convertir a float si el valor proviene de SymPy
+        numero_float = float(numero)
+        
+        # Determinar el número de dígitos significativos
+        factor = n - (int(f"{numero_float:e}".split('e')[1]) + 1)
+        redondeado = round(numero_float, factor)
+        
+        # Si el valor redondeado es entero, devolverlo sin decimales
+        if redondeado.is_integer():
+            return int(redondeado)
+        else:
+            return redondeado
+            
     
 def calcular_error_tolerable(n):
     return 0.5*(math.pow(10, 2-n))
@@ -33,8 +45,15 @@ def calcular_error_relativo(valor_anterior, valor_actual):
 def function_f(x):
     return math.pow(x, 2) - 7
 
-def derivative_function_f(x):
-    return 2*x
+def derivative_function_f(valor):
+    x = sp.symbols('x')
+    function = x**2 - 7
+    derivada = sp.diff(function, x)
+    return derivada.subs(x, valor)
+
+    ""
+    x = sp.symb
+    ""
 
 def calcular_valor_x_j(x_i, F_xi, Fp_xi):
     return (x_i - (F_xi / Fp_xi))
