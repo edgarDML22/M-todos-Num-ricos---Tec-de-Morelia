@@ -26,8 +26,6 @@ def calcular_error_tolerable(n):
     return 0.5*(math.pow(10, 2-n))
 
 def calcular_error_relativo(valor_anterior, valor_actual):
-    print(f"Valor anterior: {valor_anterior}")
-    print(f"Valor actual: {valor_actual}")
     return (abs(1 - (valor_anterior / valor_actual)))*100
 
 def function(x):
