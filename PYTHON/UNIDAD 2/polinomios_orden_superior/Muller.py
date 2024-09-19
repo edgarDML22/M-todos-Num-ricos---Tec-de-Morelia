@@ -39,8 +39,15 @@ def calcular_grado_funcion(cad):
     power = cad.find("**") + 2
     return int(power)
 
-def division_sintetica(function_str, valor):
+def division_sintetica(function_str, solucion):
+    "x**4 + 0*x**3 - 13*x**2 + 0*x**1 + 36*x**0"
+    #solucion = 2
     grado = calcular_grado_funcion(function_str)
+    
+    
+    
+    
+    
 
 def calcular_valor_lambda(f_x0, f_x1, h_0):
     return ((f_x1 - f_x0) / h_0)
@@ -139,7 +146,6 @@ def ejecutar_metodo_iterativo(x_0, x_1, x_2, n):
             new_row = np.array([row, x_i, x_j, x_k, F_xi, F_xj, F_xk, h_0, h_1, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan])
             matrix = np.vstack((matrix, new_row))
         else:
-
         #Valores de apoyo
             h_0 = valor_cifras_significativas((x_j - x_i), n)
             h_1 = valor_cifras_significativas((x_k - x_j), n)
