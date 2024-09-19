@@ -9,12 +9,21 @@ def obtener_coeficientes(cad):
     coeficientes = []
     grado = calcular_grado_funcion(cad)
     n = 0 #Posicion en la cadena
-    while len(coeficientes) < grado:
+    while len(coeficientes) <= grado:
         index_asterisco = cad.find("*", n)
         valor = int(cad[n:index_asterisco].strip())
+        print(f"VALOR: {valor}")
         coeficientes.append(valor)
         n = index_asterisco + 5
     return coeficientes    
+
+def convertir_coeficientes_int(array):
+    coeficientes = array
+    n = 0
+    while n < len(coeficientes):
+        coeficientes[n] = int(coeficientes[n])
+        n += 1
+    return coeficientes 
 
 def division_sintetica(function_str, solucion):
     #solucion = 2

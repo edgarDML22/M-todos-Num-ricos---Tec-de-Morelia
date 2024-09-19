@@ -21,8 +21,9 @@ def valor_cifras_significativas(numero, n):
     if numero == 0:
         return 0
     else:
-        factor = n - (int(f"{numero:e}".split('e')[1]) + 1)
-        return round(numero, factor)
+        numero_float = float(numero)
+        factor = n - (int(f"{numero_float:e}".split('e')[1]) + 1)
+        return round(numero_float, factor)
     
 def calcular_error_tolerable(n):
     return 0.5*(math.pow(10, 2-n))
@@ -36,18 +37,56 @@ def function_f(function_str, value):
     return function.subs(x, value) # Para evaluar
 
 def calcular_grado_funcion(cad):
-    power = cad.find("**") + 2
+    power = cad[cad.find("**") + 2]
     return int(power)
 
+def obtener_coeficientes(cad):
+    coeficientes = []
+    grado = calcular_grado_funcion(cad)
+    n = 0 #Posicion en la cadena
+    while len(coeficientes) <= grado:
+        index_asterisco = cad.find("*", n)
+        #print(cad[n:index_asterisco])
+        valor = int(cad[n:index_asterisco])
+        coeficientes.append(valor)
+        n = index_asterisco + 5
+    return coeficientes 
+
+def convertir_coeficientes_int(array):
+    coeficientes = array
+    n = 0
+    while n < len(coeficientes):
+        coeficientes[n] = int(coeficientes[n])
+        n += 1
+    return coeficientes 
+
 def division_sintetica(function_str, solucion):
-    "x**4 + 0*x**3 - 13*x**2 + 0*x**1 + 36*x**0"
     #solucion = 2
     grado = calcular_grado_funcion(function_str)
-    
-    
-    
-    
-    
+    coeficientes = obtener_coeficientes(function_str)
+    #print(coeficientes)
+    nuevos_coeficientes = []
+    nuevos_coeficientes.append(coeficientes[0])
+    #Obtener los coeficientes de la ecuación original
+    index = 1
+    while len(nuevos_coeficientes) <= (grado - 1):
+        valor = coeficientes[index] + solucion*nuevos_coeficientes[index - 1] 
+        nuevos_coeficientes.append(valor)
+        index += 1
+    nuevos_coeficientes = convertir_coeficientes_int(nuevos_coeficientes)
+    #print(nuevos_coeficientes)
+
+    power = grado - 1
+    index  = 0
+    cad = ""
+    while power >= 0:
+        if nuevos_coeficientes[index] >= 0 and index > 0:#son positivos, ponerle el signo +
+            cad += "+" 
+        cad = cad + str(nuevos_coeficientes[index]) + "*x**" + str(power)
+        power -= 1
+        index += 1
+    return cad
+
 
 def calcular_valor_lambda(f_x0, f_x1, h_0):
     return ((f_x1 - f_x0) / h_0)
@@ -62,8 +101,8 @@ def calcular_valor_xm2(x_k, a, b, c):
     return (x_k + ((-2*c)/(b - math.sqrt(math.pow(b, 2) - 4*a*c))))
 
 def elegir_valor_x_m(function_str, x_m1, x_m2):
-    Fx_1 = function_f(function_str, abs(x_m1))
-    Fx_2 = function_f(function_str, abs(x_m2))
+    Fx_1 = abs(function_f(function_str, x_m1))
+    Fx_2 = abs(function_f(function_str, x_m2))
     if Fx_1 < Fx_2:
         return x_m1
     else:
@@ -96,14 +135,15 @@ def mostrar_valores_registrados(matrix, n):
     print(f"Valor de la raíz: {matrix[matrix.shape[0] - 1][1]}")
 
 def exportar_archivo_csv(matrix):
-    np.savetxt("matriz.csv", matrix, delimiter=",")
-
+    np.savetxt("matriz.csv", matrix, delimiter=",", fmt="%s")
+    print("Se ha exportado el archivo csv!")
+    print("Si desea ver los valores obtenidos durante el método abra el archivo matriz.csv con Excel")
 
 def ejecutar_metodo_iterativo(x_0, x_1, x_2, n):
-    function_str = "x**4 + 0*x**3 - 13*x**2 + 0*x**1 + 36*x**0" #Aquí va la primera función del programa
+    function_str = "1*x**4+0*x**3-13*x**2+0*x**1+36*x**0" #Aquí va la primera función del programa
     grado_funcion = int(calcular_grado_funcion(function_str))
     soluciones = []
-    matrix = generar_matrix(16)
+    matrix = generar_matrix(18)
     x_i = valor_cifras_significativas(x_0, n)
     x_j = valor_cifras_significativas(x_1, n)
     x_k = valor_cifras_significativas(x_2, n)
@@ -130,7 +170,6 @@ def ejecutar_metodo_iterativo(x_0, x_1, x_2, n):
         F_xi = valor_cifras_significativas(function_f(function_str, x_i), n)
         F_xj = valor_cifras_significativas(function_f(function_str, x_j), n)
         F_xk = valor_cifras_significativas(function_f(function_str, x_k), n)
-
         if F_xi == 0 or F_xj == 0 or F_xk == 0:
             #Encontrar la raíz y agregarla a la lista soluciones[]
             if F_xi == 0:
@@ -140,7 +179,7 @@ def ejecutar_metodo_iterativo(x_0, x_1, x_2, n):
             else:
                 soluciones.append(x_k)
             #Reducir un grado a la función
-            function_str = division_sintetica(function_str, soluciones.get(contador_soluciones))
+            function_str = division_sintetica(function_str, soluciones[contador_soluciones])
             contador_soluciones += 1
             #No se registran los valores después de h_1
             new_row = np.array([row, x_i, x_j, x_k, F_xi, F_xj, F_xk, h_0, h_1, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan])
@@ -160,7 +199,8 @@ def ejecutar_metodo_iterativo(x_0, x_1, x_2, n):
             #Comparar el valor y elegir la máx próxima a 0 al evaluar la función
             x_m = elegir_valor_x_m(function_str, x_m1, x_m2)
             #Calcular error relativo
-            error_relativo = calcular_error_relativo(x_k, x_m)
+            if x_m != 0:
+                error_relativo = calcular_error_relativo(x_k, x_m)
             #Meter los elementos a la matriz
             new_row = np.array([row, x_i, x_j, x_k, F_xi, F_xj, F_xk, h_0, h_1, lambda_0, lambda_1, a, b, c, x_m1, x_m2, x_m, error_relativo])
             matrix = np.vstack((matrix, new_row))
@@ -168,8 +208,9 @@ def ejecutar_metodo_iterativo(x_0, x_1, x_2, n):
             x_i = x_j
             x_j = x_k
             x_k = x_m
+        #print(matrix[row])
         row += 1
-    return matrix
+    return [matrix, soluciones]
 
 
 def main():
@@ -185,9 +226,14 @@ def main():
             print("El número de mínimo de cifras significativas es 1, intente de nuevo")            
         else:                     
             break
-    matrix = ejecutar_metodo_iterativo(x_i, x_j, x_k, n)
-    #exportar_archivo_csv()
-    mostrar_valores_registrados(matrix, n)
+    array = ejecutar_metodo_iterativo(x_i, x_j, x_k, n)
+    matrix = array[0]
+    soluciones = array[1]
+    print(f"-------------------SOLUCIONES-------------------")
+    for i in range(len(soluciones)):
+        print(f"X_{i + 1}: {soluciones[i]}")
+    exportar_archivo_csv(matrix)
+    #mostrar_valores_registrados(matrix, n)
    
 if __name__ == "__main__":
     main()
