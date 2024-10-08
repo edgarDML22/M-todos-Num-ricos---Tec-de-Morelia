@@ -17,17 +17,9 @@ def ask_for_int(nombre_valor):
             print("Se ingresó un valor inválido, intente de nuevo")
 
 def exportar_archivo_csv(matrix):
-    np.savetxt("Valores_Metodo_Newton_Raphson_No_Lineal.csv", matrix, delimiter=",", fmt="%s")
+    np.savetxt("Valores_Metodo_Punto_Fijo_No_Lineal.csv", matrix, delimiter=",", fmt="%s")
     print("Se ha exportado el archivo csv!")
     print("Si desea ver los valores obtenidos durante el método abra el archivo matriz.csv con Excel")
-
-def generar_matrix(numero_columnas): # debe ser un int >= 1
-    matrix = np.array([3])
-    if numero_columnas != 1:
-        new_column = np.array([3])
-        for i in range(numero_columnas - 1):
-            matrix = np.hstack((matrix, new_column))
-    return matrix    
 
 def valor_cifras_significativas(numero, n):
     if numero == 0:
@@ -48,7 +40,7 @@ def lista_cifras_significativas(lista, n):
     for i in range(len(lista)):
         new_list.append(valor_cifras_significativas(lista[i], n))
     return new_list
-    
+
 def calcular_error_tolerable(n):
     return 0.5*(math.pow(10, 2-n))
 
@@ -72,80 +64,66 @@ def calcular_errores_relativos_Edgar(new_row):
         k += 1
     return errores
 
-def calcular_matrix_Jacobiana(A):#valores como collection
-    x, y, z = sp.symbols('x y z')
-    variables = [x, y, z]
-    jacobiana = np.empty((A.shape[0], A.shape[0]), dtype= object)
-    for i in range(A.shape[0]):
-         # Convertir la ecuación a una expresión simbólica
-        expr = sp.sympify(A[i, 0])
-        # Calcular la derivada parcial respecto a cada variable
-        for j in range(len(variables)):
-            derivada = sp.diff(expr, variables[j])
-            jacobiana[i, j] = derivada
-    return jacobiana
+def calcular_error_absoluto(x_i, x_j, n):
+    suma = 0
+    for anterior, actual in zip(x_i, x_j):
+        suma += math.pow(actual - anterior, 2)
+    return valor_cifras_significativas(math.sqrt(suma), n)
 
-def evaluar_matrix_Jacobiana(jacobiana, valores, n):#valores como collection
-    matrix = np.empty((jacobiana.shape[0], jacobiana.shape[0]))
-    #valores como una collection
-    for i in range(jacobiana.shape[0]):
-        for j in range(jacobiana.shape[1]):
-            expresion = sp.sympify(jacobiana[i, j])
-            matrix[i, j] = valor_cifras_significativas(expresion.subs(valores), n)
-    return matrix
+def Punto_Fijo_Method(G, x_i, n): #Hecho con Gauss-Seidel
+    x, y, z = sp.symbols('x, y, z')
+    keys = [x, y]
+    valores = list(x_i.values()) #[0, 1]
+    nuevos_valores = []
+    #x_i es una collection {x: 0, y: 0}
+    #Calcula los nuevos valores con Gauss-Seidel
+    for i in range(len(x_i)):
+        expresion = sp.sympify(G[i, 0])
+        value = valor_cifras_significativas(expresion.subs(dict(zip(keys, valores))), n)#el argumento debe ser una collection
+        nuevos_valores.append(value)
+        valores[i] = value
+    return nuevos_valores
 
-def calcular_minus_f(A, B, valores, n):#valores como collection
-    minus_f = np.empty(B.shape[0])
-    for i in range(B.shape[0]):
-        expresion = sp.sympify(A[i])
-        minus_f[i] = B[i] - expresion.subs(valores)[0]
-        minus_f[i] = valor_cifras_significativas(minus_f[i], n)
-    return minus_f
-
-def Newton_Raphson_Method(A, B, A_jacobiana, x_i, n):
-    #x_i es una collection{x: 1, y: 2, z: 3}
-    h_values = []#Aquí se van a guardar los valores de h
-    x_j = []#Aquí se devolverán los siguientes valores del método
-    #[C]{h_i} = [D] - Para crear el sistema de ecuaciones
-    C = evaluar_matrix_Jacobiana(A_jacobiana, x_i, n)#Ya funciona
-    D = calcular_minus_f(A, B, x_i, n)
-    #Se resuelve el sistema de ecuaciones lineales
-    h_values = np.linalg.solve(C, D).tolist()
-    h_values = lista_cifras_significativas(h_values, n)
-    for x_actual, h in zip(x_i.values(), h_values):
-        x_j.append(valor_cifras_significativas((x_actual + h), n))
-    return [h_values, x_j]
+def calcular_funciones(F, x_j, n):#x_j es una lista
+    funciones = []
+    for i in range(len(x_j)):
+        expresion = sp.sympify(F[i, 0])
+        value = valor_cifras_significativas(expresion.subs(x_j), n)
+        funciones.append(value)
+    return funciones
 
 
 def ejecutar_metodo_iterativo(n):
     x, y, z = sp.symbols('x y z')  
     soluciones = []
     matrix = np.empty((0,0))
-    #Coeficientes de la matriz
-    A = np.array([["x**3+y**3-z**3"], 
-              ["x**2+y**2-z**2"], 
-              ["x+y-z"]])
-    B = np.array([129, 9.75, 9.49])#Términos independientes
-    A_jacobiana = calcular_matrix_Jacobiana(A)
+    #Funciones originales (f_i)
+    F = np.array([["x**2+y*x-10"], ["y + 3*x*y**2 - 57"]])
+    #Funciones despejadas (g_i)
+    G = np.array([["sqrt((10-x*y))"], ["sqrt((57-y)/(3*x))"]])
     #Valores como un collection{}
-    x_i = {x: 1, y: 2, z: 3} #Aquí se cambia el valor inicial para las variables
+    x_i = {x: 0, y: 0} #Aquí se cambia el valor inicial para las variables
     row = 1
     error_tolerable = calcular_error_tolerable(n)
 
     while True:
-        keys = [x, y, z]
+        keys = [x, y]
         #Crear la fila para agregarla a la matriz de valores
         new_row = np.array([row])
         new_row = np.hstack((new_row, list(x_i.values())))
         #Calcular nuevo valor para variables
-        array = Newton_Raphson_Method(A, B, A_jacobiana, x_i, n)
-        h_values = array[0]#Lista
-        x_j = array[1]#Lista
+        x_j = Punto_Fijo_Method(G, x_i, n) #Lista
         x_j = lista_cifras_significativas(x_j, n)
+        #Calcular el valor de las funciones
+        functions = calcular_funciones(F, dict(zip(keys, x_j)), n)
+        functions = lista_cifras_significativas(functions, n)
         #Meter los valores calculados a la nueva fila
-        new_row = np.hstack((new_row, h_values))
         new_row = np.hstack((new_row, x_j))
-        #Calcular los errores 
+        new_row = np.hstack((new_row, functions))
+        #Calcular error absoluto
+        error_absoluto = calcular_error_absoluto(x_i.values(), x_j, n)
+        new_row = np.hstack((new_row, error_absoluto))
+        #Calcular los errores relativos
         errores_relativos = calcular_errores_relativos(x_i.values(), x_j, n)
         #Agregar los errores relativos a la fila
         new_row = np.hstack((new_row, errores_relativos))
@@ -165,7 +143,7 @@ def ejecutar_metodo_iterativo(n):
     return [matrix, soluciones]
 
 def main():
-    print("Bienvenid@ al método de Newton-Raphson para la resolución de sistemas de ecuaciones no lineales")
+    print("Bienvenid@ al método de Punto FIjo para la resolución de sistemas de ecuaciones no lineales")
     while True:
         n = ask_for_int("el número de cifras significativas con el que desea trabajar")
         if n < 1:

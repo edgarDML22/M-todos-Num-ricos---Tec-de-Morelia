@@ -106,6 +106,9 @@ def ejecutar_metodo_iterativo(n):
         if all(error < error_tolerable for error in errores_relativos):
             soluciones = x_j
             break
+        if row > 500:
+            print("No hubo convergencia, intente con otros valores")
+            break
         x_i = x_j
         row += 1
     return [matrix, soluciones]
@@ -121,7 +124,8 @@ def main():
     array = ejecutar_metodo_iterativo(n)
     matrix = array[0]
     soluciones = array[1]
-    print(f"-------------------SOLUCIONES-------------------")
+    if len(soluciones) != 0:
+        print(f"-------------------SOLUCIONES-------------------")
     for i in range(len(soluciones)):
         print(f"X_{i + 1}: {soluciones[i]}")
     exportar_archivo_csv(matrix)
