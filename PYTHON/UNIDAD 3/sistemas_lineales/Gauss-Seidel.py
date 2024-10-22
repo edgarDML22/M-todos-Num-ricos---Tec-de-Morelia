@@ -51,8 +51,12 @@ def calcular_error_relativo(valor_anterior, valor_actual):
 
 def calcular_errores_relativos(x_i, x_j, n):
     errores = []
+    aux = 1/math.pow(10, n-1)
     for anterior, actual in zip(x_i, x_j):
-        error = valor_cifras_significativas(calcular_error_relativo(anterior, actual), n)
+        if round(abs(anterior - actual), n) == aux:
+            error = 0
+        else:
+            error = valor_cifras_significativas(calcular_error_relativo(anterior, actual), n)
         errores.append(error)
     return errores
 
