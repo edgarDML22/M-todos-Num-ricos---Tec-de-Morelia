@@ -24,7 +24,6 @@ def ask_for_cifras_significativas():
             print("El número de mínimo de cifras significativas es 1, intente de nuevo")            
         else: return n                  
             
-
 def exportar_archivo_csv(matrix):
     np.savetxt("Valores_Metodo-Gauss-Seidel.csv", matrix, delimiter=",", fmt="%s")
     print("Se ha exportado el archivo csv!")
@@ -53,65 +52,81 @@ def lista_cifras_significativas(lista, n):
 def calcular_grado_maximo_polinomio(matrix):
     return int(matrix[matrix.shape[0] - 1, 0])
 
-def calcular_coeficientes_matrix_a(matrix, grado):
-    coeficientes = np.empty(((grado + 1), (grado + 1)))
-    #No considerar la columna i
-    for i in range(grado + 1):
-        valor = matrix[i, 1]
-        for j in range(grado + 1):
-            coeficientes[i,j] = math.pow(valor, j)
-    return coeficientes
-
 def obtener_polinomio(soluciones, grado):
     cad = ""
     for i in range(grado,-1, -1):
         if soluciones[i] >= 0 and i != grado:
             cad += "+ "
         cad +=  str(soluciones[i])
-        if i != 0:
+        if i == 1:
+            cad += "*x" + " "
+        elif i != 0:
             cad += "*x**" + str(i) + " "
     return cad
 
-def ejecutar_metodo_iterativo():
+
+def calcular_valores_L_i(matrix):
+    valores_L_i = []
+    valores_y = matrix[:,matrix.shape[1] - 1].tolist()
+    valores_x = matrix[:,matrix.shape[1] - 2].tolist()
+    n = calcular_grado_maximo_polinomio(matrix)
+    for i in range(n + 1):#numero de iteraciones
+        L_i = ""
+        contador = 0
+        for j in range(n + 1):
+            if i != j:
+                numerador = f"(x - {valores_x[j]})"
+                denominador = f"({valores_x[i]} - {valores_x[j]})"#ya despues lo compactas para que sólo se haga la resta si quieres
+                L_i += f"({numerador}/{denominador})"
+                if contador != n - 1:
+                    L_i += "*"
+                contador += 1
+        valores_L_i.append(L_i)
+    return valores_L_i
+
+def calcular_polinomio_Lagrange(valores_L_i, valores_y):
+    cad = ""
+    m = len(valores_L_i)
+    for i in range(m):
+        if valores_y[i] >= 0 and i != 0:
+            cad += " + "
+        cad += str(valores_y[i]) + "*"
+        cad += valores_L_i[i]
+    return cad
+
+def ejecutar_metodo():
     matrix = np.empty((0,0))
     #Extraer datos del archivo csv
     #Esta ruta debe modificarse dependiendo de la computadora
     #import os
     #print(os.getcwd())  # Esto te muestra el directorio actual desde el que estás ejecutando Python
-    df = pd.read_csv('C:\\Users\\EDGAR\\Desktop\\EDGAR\\SCHOOL\\TEC DE MORELIA\\TERCER SEMESTRE\\MÉTODOS NUMÉRICOS\\PYTHON\\UNIDAD 4\\Datos_Metodo_Coeficientes_Interpolantes.csv', delimiter=',')
+    df = pd.read_csv('C:\\Users\\EDGAR\\Desktop\\EDGAR\\SCHOOL\\TEC DE MORELIA\\TERCER SEMESTRE\\MÉTODOS NUMÉRICOS\\PYTHON\\UNIDAD 4\\interpolacion\\datos\\Datos_Polinomio_Lagrange.csv', delimiter=',')
     matrix = df.to_numpy()
-    #-----------------------Metodo de coeficientes interpolantes-----------------------
-    #Se calcula el grado máximo del polinomio
-    grado = calcular_grado_maximo_polinomio(matrix)
-    #Calcular los coeficientes de la matrix a_o, a_i...
-    A = calcular_coeficientes_matrix_a(matrix, grado)
-    B = matrix[:, matrix.shape[1] - 1]#coeficientes del vector de terminos independientes
-    solutions = lista_cifras_significativas(list(np.linalg.solve(A, B)), 4)
-    #Formar el polinomio como str
-    function_str = obtener_polinomio(solutions, grado)
-    #--------------------------------------------------------------------------------------
-    print("La función calculada con el método es la siguiente")
-    print(f"f(x) = {function_str.replace('**', '^')}")
-    #print(f"f(x) = {function_str.replace("**", "^")}")
-    #Preguntar al usuario si desea obtener algún valor
+    valores_y = valores_y = matrix[:,matrix.shape[1] - 1].tolist()
+    #Método de polinomio de Lagrange
+    valores_L_i = calcular_valores_L_i(matrix)
+    polinomio = calcular_polinomio_Lagrange(valores_L_i, valores_y)
+    #Mostrar al usuario el polinomio obtenido
+    print("Polinomio calculado con el método")
+    print(f"f_{calcular_grado_maximo_polinomio(matrix)}(x) = {polinomio}")
+    #Preguntar si desea evaluar un valor de x
     x = sp.symbols('x')
-    function = sp.sympify(function_str)
     while True:
-        print("¿Desea evaluar la función en algún punto?\n1. SI\n2. NO")
+        print("¿Desea evaluar un valor x en el polinomio?\n1. SI\n2. NO")
         ans = ask_for_int("una opción")
         if ans == 1:
-            value = ask_for_double("el valor")
-            result = function.subs({x:value})
-            print(f"El valor para f({value}) es: {round(result, 4)}")
-        else:
+            value = ask_for_double("el valor de x que quiere evaluar en la función")
+            function = sp.sympify(polinomio)
+            resultado = function.subs(x, value)
+            print(f"Y_{calcular_grado_maximo_polinomio(matrix)}({value}) = {round(resultado, 6)}")
+        elif ans == 2:
             break
-
-        
-    
+        else:
+            print("Se ingresó una opción inválida")
 
 def main():
-    print("Bienvenid@ al método de Coeficientes Interpolantes para la resolución de sistemas de ecuaciones lineales")
-    print("El archivo que contiene los datos tiene el nombre de 'Datos_Metodo_Coeficientes_Interpolantes.csv'")
+    print("Bienvenid@ al método de Newton - Polinomio de interpolación de Lagrange")
+    print("El archivo que contiene los datos tiene el nombre de 'Datos_Polinomio_Lagrange.csv'")
     print("Si desea modificar algún dato, este es el momento de hacerlo")
 
     while True:
@@ -121,7 +136,7 @@ def main():
         else: print("Opción inválida, intente de nuevo")
     if ans == 1:
         print("Espere mientras se ejecuta el programa...")
-        ejecutar_metodo_iterativo()
+        ejecutar_metodo()
     else:
         print("Se detuvo la ejecución del programa")
     

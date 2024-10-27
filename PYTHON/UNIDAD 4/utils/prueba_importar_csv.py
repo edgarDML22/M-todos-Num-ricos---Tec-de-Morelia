@@ -7,7 +7,7 @@ import os
 matrix = np.empty((0,0))
     #Extraer datos del archivo csv
 #matrix = np.loadtxt('Datos_Metodo_Coeficientes_Interpolantes.csv', delimiter=',', skiprows=1)
-df = pd.read_csv('C:\\Users\\EDGAR\\Desktop\\EDGAR\\SCHOOL\\TEC DE MORELIA\\TERCER SEMESTRE\\MÉTODOS NUMÉRICOS\\PYTHON\\UNIDAD 4\\Datos_Metodo_Coeficientes_Interpolantes.csv', delimiter=',')
+df = pd.read_csv('C:\\Users\\EDGAR\\Desktop\\EDGAR\\SCHOOL\\TEC DE MORELIA\\TERCER SEMESTRE\\MÉTODOS NUMÉRICOS\\PYTHON\\UNIDAD 4\\datos\\Datos_Metodo_Coeficientes_Interpolantes.csv', delimiter=',')
 matrix = df.to_numpy()
 print()
 
