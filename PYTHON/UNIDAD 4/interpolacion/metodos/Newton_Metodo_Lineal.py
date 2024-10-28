@@ -74,49 +74,17 @@ def verificar_paso(valores_x):
                 return False
     return True
 
-def calcular_valores_diferencias_divididas(matrix):
-    valores_diferencias_divididas = []
+def calcular_valor_metodo_lineal(matrix, value):
+    valor_metodo_lineal = []
     valores_x = matrix[:,matrix.shape[1] - 2].tolist()
     valores_y = matrix[:,matrix.shape[1] - 1].tolist()
-    valores_diferencias_divididas.append(valores_y[0])
-    n = calcular_grado_maximo_polinomio(matrix)
-    lista1 = valores_y.copy()
-    lista2 = []#Para los valores del numerador
-    k = 0
-    for i in range(n):#numero de veces q hay q iterar; n = 3
-        k = i
-        if k == 0:
-            for j in range(n, 0, -1):
-                valor = (lista1[j] - lista1[j - 1]) / (valores_x[j] - valores_x[j - 1])
-                lista2.append(valor)
-        else:#k == 2
-            for j in range(n - k):#j empieza en 0, 
-                valor = (lista1[j] - lista1[j + 1]) / (valores_x[k + 1] - valores_x[k - i])
-                lista2.append(valor)
-                k += 1
-        valores_diferencias_divididas.append(lista2[-1])
-        lista1 = lista2
-        lista2 = []
-    return valores_diferencias_divididas
-
-def calcular_polinomio_diferencias_divididas(matrix, valores_diferencias_divididas):
-    cad = ""
-    grado = calcular_grado_maximo_polinomio(matrix)
-    valores_x = matrix[:,matrix.shape[1] - 2].tolist()
-    for i in range(grado,-1, -1):
-        if i == 0:
-            if valores_diferencias_divididas[i] >= 0:
-                cad += " + "
-            cad += str(valores_diferencias_divididas[i]) + " "
-        else:
-            if valores_diferencias_divididas[i] >= 0 and i != grado:
-                cad += " + "
-            cad +=  str(valores_diferencias_divididas[i])
-            for j in range(i):
-                cad += "*"
-                cad += f"(x - {valores_x[j]})"
-    return cad
- 
+    for i in range(len(valores_x) - 1):
+        if valores_x[i] <= value <= valores_x[i + 1]:
+            valor_metodo_lineal.append(f"f({valores_x[i]}) + ((f({valores_x[i + 1]}) - f({valores_x[i]}))/(({valores_x[i + 1]}) - {valores_x[i]}))")
+            valor_metodo_lineal.append(f"{valores_y[i]} + (({valores_y[i + 1]} - {valores_y[i]})/(({valores_x[i + 1]}) - {valores_x[i]}))")
+            valor_metodo_lineal.append(valores_y[i] + ((valores_y[i + 1] - valores_y[i])/((valores_x[i + 1]) - valores_x[i])))
+            break
+    return valor_metodo_lineal
 
 def ejecutar_metodo():
     matrix = np.empty((0,0))
@@ -124,40 +92,33 @@ def ejecutar_metodo():
     #Esta ruta debe modificarse dependiendo de la computadora
     #import os
     #print(os.getcwd())  # Esto te muestra el directorio actual desde el que estás ejecutando Python
-    df = pd.read_csv('C:\\Users\\EDGAR\\Desktop\\EDGAR\\SCHOOL\\TEC DE MORELIA\\TERCER SEMESTRE\\MÉTODOS NUMÉRICOS\\PYTHON\\UNIDAD 4\\interpolacion\\datos\\Datos_Newton_Diferencias_Divididas.csv', delimiter=',')
+    df = pd.read_csv('C:\\Users\\EDGAR\\Desktop\\EDGAR\\SCHOOL\\TEC DE MORELIA\\TERCER SEMESTRE\\MÉTODOS NUMÉRICOS\\PYTHON\\UNIDAD 4\\interpolacion\\datos\\Datos_Newton_Metodo_Lineal.csv', delimiter=',')
     matrix = df.to_numpy()
     valores_x = matrix[:,matrix.shape[1] - 2]
-    #Verificar que los valores tengan el mismo paso
-    if verificar_paso(valores_x) == True:
-        h = valores_x[1] - valores_x[0]
-        #Pedir el valor de x
-        #Método de Newton diferencias divididas
-        valores_diferencias_divididas = calcular_valores_diferencias_divididas(matrix)
-        polinomio = calcular_polinomio_diferencias_divididas(matrix, valores_diferencias_divididas)
-        #Mostrar al usuario el polinomio calculado
-        print("El polinomio calculado es el siguiente: ")
-        print(f"Y_{calcular_grado_maximo_polinomio(matrix)}(x) = {polinomio}")
-        #Preguntar si desea evaluar un valor de 
-        x = sp.symbols('x')
-        while True:
-            print("¿Desea evaluar un valor x en el polinomio?\n1. SI\n2. NO")
-            ans = ask_for_int("una opción")
-            if ans == 1:
-                value = ask_for_double("el valor de x que quiere evaluar en la función")
-                function = sp.sympify(polinomio)
-                resultado = function.subs(x, value)
-                print(f"Y_{calcular_grado_maximo_polinomio(matrix)}({value}) = {round(resultado, 6)}")
-            elif ans == 2:
-                break
-            else:
-                print("Se ingresó una opción inválida")
-    else:
-        print("Los valores de la tabla no tienen el mismo paso, por lo que no es posible llevar este método a cabo")
+    #Pedir el valor de x
+    valor_min = min(valores_x)
+    valor_max = max(valores_x)
+    while True:
+        print("Proporcione el punto para evaluar la función")
+        value = ask_for_int("el valor")
+        if valor_min < value < valor_max:
+            print("Valor adecuado para el método")
+            break
+        else:
+            print("El valor proporcionado debe estar dentro del siguiente intervalo: ")
+            print(f"{valor_min} < x < {valor_max}")
+    #Método de Newton - Metodo Lineal
+    valor_metodo_lineal = calcular_valor_metodo_lineal(matrix, value)#una lista
+    #Mostrar al usuario la operación ejecutada
+    print("La operación llevada a cabo fue la siguiente:")
+    for operacion in valor_metodo_lineal:
+        print(f"f({value}) = {operacion}")
     
-        
+    
+    
 def main():
-    print("Bienvenid@ al método de Newton - Diferencias Divididas")
-    print("El archivo que contiene los datos tiene el nombre de 'Datos_Newton_Diferencias_Divididas.csv'")
+    print("Bienvenid@ al método de Newton - Función Lineal")
+    print("El archivo que contiene los datos tiene el nombre de 'Datos_Newton_Metodo_Lineal.csv'")
     print("Si desea modificar algún dato, este es el momento de hacerlo")
 
     while True:

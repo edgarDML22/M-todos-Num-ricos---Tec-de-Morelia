@@ -76,12 +76,10 @@ def obtener_polinomios_cuadraticos(soluciones):
     grado = 2
     k = 0#es para el numero de polinomios
     i = 0#para la posicion en el vector solucion
-    print(len(soluciones))
     while k < (len(soluciones) + 1) / 3:#numero de polinomios
         cad = ""
         if k == 0:#el primer polinomio es una recta
             for j in range(grado - 1,-1, -1):
-                print(f"VALOR DE i: {i}")
                 if soluciones[i] >= 0 and j != grado - 1:
                     cad += "+ "
                 cad +=  str(soluciones[i])
@@ -100,7 +98,6 @@ def obtener_polinomios_cuadraticos(soluciones):
                 i += 1
         lista_polinomios.append(cad)
         k += 1 
-        print(lista_polinomios)
     return lista_polinomios
 
 def calcular_valores_regla1(matrix, coeficientes_ecuaciones, terminos_independientes, n):
@@ -130,7 +127,6 @@ def calcular_valores_regla1(matrix, coeficientes_ecuaciones, terminos_independie
             terminos_independientes[0] = valor_y
             i += 2
         elif j == (m - 1):#De la ultima ecuacion
-            print("*********************ULTIMA*****************")
             valor_x = valores_x[k - 2]
             new_vector[n - 3] = math.pow(valor_x, 2)
             new_vector[n - 2] = valor_x#b_3
@@ -161,8 +157,6 @@ def calcular_valores_regla1(matrix, coeficientes_ecuaciones, terminos_independie
             j += 1
             i += 3
         j += 1
-    print(coeficientes_ecuaciones)
-    print(terminos_independientes)
 
 def calcular_valores_regla2(matrix, coeficientes_ecuaciones, terminos_independientes, n):
     valores_x = matrix[:,matrix.shape[1] - 2]
@@ -183,9 +177,6 @@ def calcular_valores_regla2(matrix, coeficientes_ecuaciones, terminos_independie
     terminos_independientes[m] = valores_y[0]
     coeficientes_ecuaciones[m + 1] = vector_n
     terminos_independientes[m + 1] = valores_y[k - 1]
-    #Comprobación
-    print(coeficientes_ecuaciones)
-    print(terminos_independientes)
 
 def calcular_valores_regla3(matrix, coeficientes_ecuaciones, terminos_independientes, n):
     valores_x = matrix[:,matrix.shape[1] - 2]
@@ -206,7 +197,6 @@ def calcular_valores_regla3(matrix, coeficientes_ecuaciones, terminos_independie
             else:
                 #j = 2
                 #i = 2
-                print(f"VALOR DE J: {j}")
                 vector[i] = 2*valores_x[j]
                 vector[i + 1] = 1
                 vector[i + 3] = -2*valores_x[j]
@@ -215,9 +205,6 @@ def calcular_valores_regla3(matrix, coeficientes_ecuaciones, terminos_independie
             coeficientes_ecuaciones[m + j - 1] = vector
             terminos_independientes[m + j - 1] = 0#esta sobra pero mejor la pongo XD
         j+=1
-    #Comprobación
-    print(coeficientes_ecuaciones)
-    print(terminos_independientes)
             
 def ejecutar_metodo():
     matrix = np.empty((0,0))
@@ -227,7 +214,6 @@ def ejecutar_metodo():
     #print(os.getcwd())  # Esto te muestra el directorio actual desde el que estás ejecutando Python
     df = pd.read_csv('C:\\Users\\EDGAR\\Desktop\\EDGAR\\SCHOOL\\TEC DE MORELIA\\TERCER SEMESTRE\\MÉTODOS NUMÉRICOS\\PYTHON\\UNIDAD 4\\interpolacion\\datos\\Datos_Interpolacion_Segmentada.csv', delimiter=',')
     matrix = df.to_numpy()
-    print(matrix)
     if matrix.shape[0] % 2 != 0:
         print("Para trabajar este método debe proporcionarse un número par de pares de valores(x, y)")
     #numero de ecuaciones
