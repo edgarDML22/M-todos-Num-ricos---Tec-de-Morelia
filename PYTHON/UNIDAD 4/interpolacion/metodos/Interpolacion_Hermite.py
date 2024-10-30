@@ -121,12 +121,9 @@ def calcular_valores_diferencias_divididas_Hermite(matrix):
                 valor = valor_cifras_significativas((lista1[j] - lista1[j + 1]) / (valores_x[k + i - 1] - valores_x[k - 2]), 4)
                 lista2.append(valor)
                 k -= 1
-        print(f"VALOR DE i: {i}")
-        print(lista2)
         valores_diferencias_divididas.append(lista2[-1])
         lista1 = lista2
         lista2 = []
-    print(valores_diferencias_divididas)
     return valores_diferencias_divididas
 
 def calcular_polinomio_Hermite(matrix, valores_diferencias_divididas):
@@ -134,7 +131,6 @@ def calcular_polinomio_Hermite(matrix, valores_diferencias_divididas):
     valores_y = matrix[:,matrix.shape[1] - 2].tolist().copy()
     valores_x = duplicate_list(valores_x)
     valores_y = duplicate_list(valores_y)
-    print(valores_x)
     cad = ""
     n = matrix.shape[0]#número de filas
     grado = 2*(n) - 1
