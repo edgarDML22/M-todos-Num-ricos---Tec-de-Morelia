@@ -103,6 +103,7 @@ def calcular_index_list(matrix, value):
     else:
         #Primero ver si hay un valor de x más cercano
         posibles_index = [lista_index[0] - 1, lista_index[1] + 1]
+        print(posibles_index)
         if valores_x[posibles_index[0]] <= valores_x[posibles_index[1]]:
             lista_index.append(posibles_index[0])
         else:
